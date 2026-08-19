@@ -1,0 +1,4 @@
+# Kompatibilitätszweig CURRENT DEVELOPMENT (Python 3.14).
+# Home Assistant selbst wird im Workflow durch den dev-Zweig ersetzt.
+pytest-homeassistant-custom-component
+home-assistant-frontend

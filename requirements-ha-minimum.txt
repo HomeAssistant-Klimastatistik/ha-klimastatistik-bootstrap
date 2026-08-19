@@ -1,0 +1,11 @@
+# Kompatibilitätszweig MINIMUM
+#
+# Prüft die dokumentierte Mindestversion aus `const.MIN_HOME_ASSISTANT`
+# **exakt**: 0.13.313 pinnt `homeassistant==2026.2.0`.
+#
+# Beim Anheben von `MIN_HOME_ASSISTANT` sind diese Datei und der
+# `--expect`-Wert im Workflow gemeinsam mitzuziehen.
+#
+# Python: 3.13
+pytest-homeassistant-custom-component==0.13.313
+home-assistant-frontend

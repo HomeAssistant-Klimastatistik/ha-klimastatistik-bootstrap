@@ -1,0 +1,3 @@
+# Kompatibilitätszweig CURRENT STABLE (Home Assistant 2026.8.2, Python 3.14).
+pytest-homeassistant-custom-component==0.13.356
+home-assistant-frontend

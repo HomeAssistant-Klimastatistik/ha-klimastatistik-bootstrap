@@ -1,0 +1,63 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Klimastatistik installieren",
+        "description": "Dieses Bootstrap installiert die private Klimastatistik-Integration aus {repository}.\n\nDafür wird ein GitHub-Token benötigt, der genau dieses Repository lesen darf ({permission}). Schreibrechte sind nicht erforderlich und sollen nicht vergeben werden.\n\nOhne gültige Berechtigung wird nichts heruntergeladen und nichts installiert. Der Token wird niemals protokolliert, exportiert oder in Fehlermeldungen angezeigt.",
+        "data": {
+          "github_token": "GitHub-Token",
+          "owner": "GitHub-Organisation",
+          "repo": "Repository",
+          "channel": "Updatekanal"
+        }
+      },
+      "reauth_confirm": {
+        "title": "GitHub-Token erneuern",
+        "description": "Der Token für {repository} wird nicht mehr akzeptiert. Bitte einen gültigen Token mit {permission} eingeben.",
+        "data": {
+          "github_token": "GitHub-Token"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "GitHub ist nicht erreichbar. Es handelt sich um ein Netzwerkproblem, nicht um ein Berechtigungsproblem.",
+      "invalid_auth": "Der Token wurde abgelehnt. Er ist ungültig, abgelaufen oder widerrufen.",
+      "no_repository_access": "Der Token ist gültig, hat aber keine Leseberechtigung für dieses private Repository. Damit ist keine Installation möglich.",
+      "rate_limit": "Das GitHub-Anfragekontingent ist erschöpft. Bitte später erneut versuchen.",
+      "release_not_found": "Im gewählten Kanal wurde kein installierbares Release gefunden.",
+      "asset_not_found": "Dem Release fehlt eine erforderliche Datei.",
+      "checksum_mismatch": "Die Prüfsumme des heruntergeladenen Pakets stimmt nicht. Die Installation wurde abgebrochen.",
+      "integrity_error": "Die Integritätsprüfung des Pakets ist fehlgeschlagen. Die Installation wurde abgebrochen.",
+      "unknown": "Unerwarteter Fehler: {error}"
+    },
+    "abort": {
+      "already_configured": "Das Bootstrap ist bereits eingerichtet.",
+      "reauth_successful": "Der Token wurde erneuert."
+    }
+  },
+  "selector": {
+    "channel": {
+      "options": {
+        "stable": "Stable",
+        "beta": "Closed Beta"
+      }
+    }
+  },
+  "issues": {
+    "restart_required": {
+      "title": "Neustart erforderlich",
+      "fix_flow": {
+        "step": {
+          "confirm_restart": {
+            "title": "Neustart erforderlich",
+            "description": "Die private Klimastatistik-Integration {version} wurde installiert. Home Assistant muss neu gestartet werden, damit sie geladen wird. Danach kann Klimastatistik unter Geräte und Dienste eingerichtet werden."
+          }
+        }
+      }
+    },
+    "handover_pending": {
+      "title": "Klimastatistik einrichten",
+      "description": "Die private Klimastatistik-Integration {version} liegt bereit, ist aber noch nicht eingerichtet. Bitte unter Einstellungen, Geräte und Dienste die Integration Klimastatistik hinzufügen. Der bereits eingegebene Token wird dabei automatisch übernommen; anschliessend entfernt das Bootstrap seine Tokenkopie."
+    }
+  }
+}

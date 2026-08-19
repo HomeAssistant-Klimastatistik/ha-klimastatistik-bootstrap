@@ -1,0 +1,12 @@
+# Werkzeuge der Testsuite ohne Home-Assistant-Bindung.
+#
+# Die Home-Assistant-Version kommt aus einer der Zweigdateien, damit die
+# Kompatibilitätsmatrix tatsächlich unterschiedliche Stände prüft:
+#
+#   requirements-ha-minimum.txt   dokumentierte Mindestversion (Python 3.13)
+#   requirements-ha-stable.txt    zuletzt übernommene Stable-Version (fester Pin, Python 3.14)
+#   requirements-ha-dev.txt       aktueller Entwicklungsstand  (Python 3.14)
+pytest>=8.0
+pytest-asyncio>=0.24
+# Für die Strukturprüfung der Workflowdateien (tests/test_ci_workflows.py).
+PyYAML>=6.0

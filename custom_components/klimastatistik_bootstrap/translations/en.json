@@ -1,0 +1,63 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Install Klimastatistik",
+        "description": "This bootstrap installs the private Klimastatistik integration from {repository}.\n\nIt requires a GitHub token that may read exactly this repository ({permission}). Write permission is not required and should not be granted.\n\nWithout valid permission nothing is downloaded and nothing is installed. The token is never logged, never exported and never shown in error messages.",
+        "data": {
+          "github_token": "GitHub token",
+          "owner": "GitHub organisation",
+          "repo": "Repository",
+          "channel": "Update channel"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Renew the GitHub token",
+        "description": "The token for {repository} is no longer accepted. Please enter a valid token with {permission}.",
+        "data": {
+          "github_token": "GitHub token"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "GitHub cannot be reached. This is a network problem, not a permission problem.",
+      "invalid_auth": "The token was rejected. It is invalid, expired or revoked.",
+      "no_repository_access": "The token is valid but has no read permission for this private repository. Installation is therefore not possible.",
+      "rate_limit": "The GitHub request quota is exhausted. Please try again later.",
+      "release_not_found": "No installable release was found in the selected channel.",
+      "asset_not_found": "The release is missing a required file.",
+      "checksum_mismatch": "The checksum of the downloaded package does not match. The installation was aborted.",
+      "integrity_error": "The integrity check of the package failed. The installation was aborted.",
+      "unknown": "Unexpected error: {error}"
+    },
+    "abort": {
+      "already_configured": "The bootstrap is already set up.",
+      "reauth_successful": "The token was renewed."
+    }
+  },
+  "selector": {
+    "channel": {
+      "options": {
+        "stable": "Stable",
+        "beta": "Closed beta"
+      }
+    }
+  },
+  "issues": {
+    "restart_required": {
+      "title": "Restart required",
+      "fix_flow": {
+        "step": {
+          "confirm_restart": {
+            "title": "Restart required",
+            "description": "The private Klimastatistik integration {version} has been installed. Home Assistant must be restarted so that it is loaded. Klimastatistik can then be set up under Devices and services."
+          }
+        }
+      }
+    },
+    "handover_pending": {
+      "title": "Set up Klimastatistik",
+      "description": "The private Klimastatistik integration {version} is ready but not set up yet. Please add the Klimastatistik integration under Settings, Devices and services. The token you already entered is taken over automatically; the bootstrap then removes its copy of the token."
+    }
+  }
+}
