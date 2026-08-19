@@ -9,7 +9,7 @@ Release-Assets und **keine** eingebetteten Zugangsdaten.
 
 > **Wichtig:** Das Installieren dieses Bootstraps gewährt keinen Zugriff auf das
 > private Produkt. Für die Installation der eigentlichen Integration ist eine
-> individuell erteilte Leseberechtigung auf dem privaten Repository und ein
+> individuell erteilte Leseberechtigung auf dem privaten Distributionsrepository und ein
 > gültiger GitHub-Token erforderlich. Ohne beides wird nichts heruntergeladen
 > und nichts installiert.
 
@@ -18,7 +18,7 @@ Release-Assets und **keine** eingebetteten Zugangsdaten.
 ## Was das Bootstrap tut
 
 1. nimmt einen GitHub-Token entgegen,
-2. prüft, ob dieser Token das private Produkt-Repository lesen darf,
+2. prüft, ob dieser Token das private Distributionsrepository lesen darf,
 3. ermittelt das neueste Release des gewählten Kanals,
 4. lädt das Release-Manifest und das Produktpaket,
 5. prüft SHA-256, Manifest und Paketstruktur,
@@ -60,14 +60,15 @@ Anschliessend `HA Klimastatistik Bootstrap` in HACS herunterladen.
 
 Siehe [docs/TOKEN.md](docs/TOKEN.md). Kurzfassung:
 
+* der Nutzer muss zuvor vom Projektinhaber als Mitglied der
+  GitHub-Organisation freigeschaltet worden sein,
 * **Fine-grained personal access token**,
-* **Resource owner:** die Organisation, die das private Repository besitzt,
-* **Repository access:** *Only select repositories* → nur das private
-  Produkt-Repository,
+* **Resource owner:** `HomeAssistant-Klimastatistik`,
+* **Repository access:** *Only select repositories* →
+  `ha-klimastatistik-distribution`,
 * **Repository permissions:** **Contents: Read-only** (mehr wird nicht
   benötigt und soll nicht vergeben werden),
 * Schreibrechte sind ausdrücklich **nicht** erforderlich.
-
 ### 4. Bootstrap einrichten
 
 **Einstellungen → Geräte & Dienste → Integration hinzufügen →
