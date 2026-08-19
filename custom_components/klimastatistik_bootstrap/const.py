@@ -16,7 +16,7 @@ VERSION: Final = "2.3.0"
 PRODUCT_DOMAIN: Final = "klimastatistik"
 
 DEFAULT_OWNER: Final = "HomeAssistant-Klimastatistik"
-DEFAULT_REPO: Final = "ha-klimastatistik"
+DEFAULT_REPO: Final = "ha-klimastatistik-distribution"
 
 MIN_HOME_ASSISTANT: Final = "2026.2.0"
 
