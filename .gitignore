@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+dist/
+*.zip
+.coverage
+
+# Das Bootstrap führt keine Legacy-Fixtures. Die Ausnahme im privaten
+# Hauptrepository (`!tests/fixtures/*.zip`) hat hier bewusst kein Gegenstück:
+# ein ZIP in diesem öffentlichen Baum wäre ein Versehen.
