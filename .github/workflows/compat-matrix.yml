@@ -1,0 +1,185 @@
+name: Kompatibilitätsmatrix
+
+# Wiederverwendbarer Workflow, aufgerufen von `validate.yml`. Die Matrix
+# wird damit nur an EINER Stelle gepflegt und ist identisch aufgebaut wie im
+# privaten Hauptrepository.
+#
+# Jeder Zweig installiert tatsächlich eine ANDERE Home-Assistant-Version.
+# `tools/check_ha_version.py` bricht ab, wenn die installierte Version nicht
+# dem entspricht, was hier je Zweig als `check` hinterlegt ist (`--expect`
+# für die gepinnten Zweige, `--newer-than` für dev). Eine Matrix, die überall
+# dasselbe installiert, ist damit ausgeschlossen.
+#
+# Semantik:
+#   minimum  Pflicht
+#   stable   Pflicht
+#   dev      optional - `continue-on-error`, blockiert nichts, bleibt aber in
+#                       Protokoll und Artefakt sichtbar
+
+on:
+  workflow_call:
+    inputs:
+      include_required:
+        description: "Die Pflichtzweige minimum und stable ausführen"
+        type: boolean
+        required: false
+        default: true
+      include_dev:
+        description: "Den optionalen Entwicklungszweig mitlaufen lassen"
+        type: boolean
+        required: false
+        default: true
+      summary:
+        description: >
+          Die Kompatibilitätsübersicht in die Job-Zusammenfassung schreiben.
+          Wird der Workflow in einem Lauf zweimal aufgerufen, schreibt nur
+          der erste Aufruf die Übersicht - sonst stünden zwei Tabellen da.
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  pflicht:
+    name: "Tests · ${{ matrix.branch }} (HA ${{ matrix.ha_label }}, Python ${{ matrix.python }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ inputs.include_required }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Dokumentierte Mindestversion des Produkts - exakt, nicht eine
+          # spätere Patchfassung. Muss zu `const.MIN_HOME_ASSISTANT` passen;
+          # beim Anheben requirements-ha-minimum.txt mitziehen.
+          - branch: minimum
+            python: "3.13"
+            requirements: requirements-ha-minimum.txt
+            ha_label: "2026.2.0"
+            check: "--expect 2026.2.0"
+          # Stable-Stand, auf den dieses Release gepinnt ist. Der Pin wird
+          # NICHT automatisch nachgezogen: erscheint eine neue
+          # Home-Assistant-Stable-Version, sind requirements-ha-stable.txt und
+          # dieser `--expect`-Wert bewusst gemeinsam anzuheben.
+          - branch: stable
+            python: "3.14"
+            requirements: requirements-ha-stable.txt
+            ha_label: "2026.8.2"
+            check: "--expect 2026.8.2"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.python }}"
+
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-test.txt -r "${{ matrix.requirements }}"
+
+      - name: Tatsächlich installierte Versionen ausweisen
+        # Bewusst KEINE Pipe: die GitHub-Vorgabeshell ist `bash -e {0}`
+        # OHNE `-o pipefail`; ein `| tee` würde den Exitcode 1 der
+        # Versionsprüfung verschlucken.
+        run: |
+          python tools/check_ha_version.py --branch "${{ matrix.branch }}" ${{ matrix.check }} \
+            > "ha-version-${{ matrix.branch }}.json"
+          cat "ha-version-${{ matrix.branch }}.json"
+
+      - name: Testsuite ausführen
+        # CI setzt ausdrücklich KEINEN echten Benutzer-PAT voraus:
+        # sämtliche GitHub-Aufrufe laufen gegen den Fake-Transport.
+        run: pytest -q --junitxml="test-report-${{ matrix.branch }}.xml"
+
+      - name: Testreport ablegen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: "test-report-${{ matrix.branch }}"
+          # Ein fehlendes Artefakt ist ein Fehler, keine Warnung: ohne den
+          # Bericht ist der Zweig nicht belegt.
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            test-report-${{ matrix.branch }}.xml
+            ha-version-${{ matrix.branch }}.json
+
+  optional:
+    name: "Tests · dev (HA Entwicklungszweig, Python 3.14)"
+    runs-on: ubuntu-latest
+    # Der Entwicklungszweig wird aus dem Quellzweig installiert; das dauert
+    # deutlich länger als ein Wheel aus PyPI.
+    timeout-minutes: 45
+    if: ${{ inputs.include_dev }}
+    # Ein temporärer Upstream-Defekt in Home Assistant darf ein Stable-Release
+    # nicht dauerhaft unmöglich machen. Der Befund bleibt trotzdem sichtbar:
+    # Protokoll, Artefakt und Zusammenfassung weisen ihn aus.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Abhängigkeiten installieren
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-test.txt -r requirements-ha-dev.txt
+
+      - name: Home-Assistant-Entwicklungsstand installieren
+        # Bewusst NACH den Testwerkzeugen: der dev-Zweig ersetzt die von
+        # pytest-homeassistant-custom-component gepinnte Fassung.
+        run: pip install --upgrade "homeassistant @ git+https://github.com/home-assistant/core.git@dev"
+
+      - name: Tatsächlich installierte Versionen ausweisen
+        # `--newer-than` statt `--expect`: der Entwicklungsstand darf nicht
+        # unbemerkt auf derselben Version landen wie `stable`, sonst prüfte
+        # dieser Zweig nichts Zusätzliches.
+        # Bewusst keine Pipe - siehe Pflichtzweig oben.
+        run: |
+          python tools/check_ha_version.py --branch dev --newer-than 2026.8.2 \
+            > "ha-version-dev.json"
+          cat "ha-version-dev.json"
+
+      - name: Testsuite ausführen
+        run: pytest -q --junitxml="test-report-dev.xml"
+
+      - name: Testreport ablegen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-dev
+          # Beim optionalen Zweig ist ein fehlendes Artefakt kein Fehler: der
+          # Job darf vor pytest scheitern. Er bleibt aber als Warnung sichtbar
+          # und die Zusammenfassung weist den Zweig dann als ABGEBROCHEN aus.
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            test-report-dev.xml
+            ha-version-dev.json
+
+  zusammenfassung:
+    name: Kompatibilitätsübersicht
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [pflicht, optional]
+    # `always()`, damit die Übersicht auch bei einem Fehlschlag entsteht -
+    # gerade dann ist sie interessant.
+    if: ${{ always() && inputs.summary }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: test-report-*
+          path: reports
+      - name: Übersicht schreiben
+        # Macht den Befund des optionalen dev-Zweigs sichtbar, statt ihn im
+        # grünen Gesamtergebnis verschwinden zu lassen.
+        run: python tools/ci_compat_summary.py reports >> "$GITHUB_STEP_SUMMARY"
