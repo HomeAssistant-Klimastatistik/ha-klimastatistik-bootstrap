@@ -1,7 +1,8 @@
 # GitHub-Token für Klimastatistik
 
 Diese Anleitung beschreibt, wie ein möglichst restriktiver GitHub-Token für den
-Zugriff auf das private Klimastatistik-Repository erstellt wird.
+Zugriff auf das private Distributionsrepository von HA Klimastatistik erstellt
+wird. Das private Entwicklungsrepository wird Endnutzern nicht freigegeben.
 
 Sie enthält bewusst keine vertraulichen Projektinhalte.
 
@@ -14,6 +15,19 @@ Schreibrechten soll nicht erstellt und nicht verwendet werden.
 
 ---
 
+## Voraussetzung: Freischaltung durch den Projektinhaber
+
+Für den vorgesehenen Fine-grained-Token-Weg muss der Nutzer Mitglied der
+GitHub-Organisation `HomeAssistant-Klimastatistik` sein und Leseberechtigung
+für das Repository `ha-klimastatistik-distribution` erhalten haben.
+
+Die Organisationsmitgliedschaft gewährt keinen Zugriff auf das private
+Entwicklungsrepository `ha-klimastatistik`. Der Produktzugriff wird gezielt
+auf das Distributionsrepository beschränkt.
+
+Outside Collaborators werden für diesen Fine-grained-PAT-Weg von GitHub
+derzeit nicht unterstützt.
+
 ## Empfohlen: Fine-grained personal access token
 
 **GitHub → Settings → Developer settings → Personal access tokens →
@@ -22,9 +36,9 @@ Fine-grained tokens → Generate new token**
 | Feld | Wert |
 | --- | --- |
 | Token name | z. B. `klimastatistik-readonly` |
-| Expiration | so kurz wie praktikabel; die Verlängerung ist über *Reauth* in Home Assistant möglich |
-| Resource owner | die Organisation, die das private Repository besitzt |
-| Repository access | **Only select repositories** → nur das private Produkt-Repository |
+| Expiration | nach Sicherheitsvorgabe des Projektinhabers bzw. der Organisation; eine Organisationspolicy kann eine maximale Laufzeit erzwingen |
+| Resource owner | `HomeAssistant-Klimastatistik` |
+| Repository access | **Only select repositories** → `ha-klimastatistik-distribution` |
 | Repository permissions → **Contents** | **Read-only** |
 
 `Metadata: Read-only` wird von GitHub automatisch mitgesetzt und ist
@@ -32,11 +46,13 @@ erforderlich. Weitere Berechtigungen werden nicht benötigt.
 
 ### Freigabe durch die Organisation
 
-Gehört das Repository einer Organisation, muss ein Organisationsinhaber den
-Token in der Regel freigeben, bevor er funktioniert. Standardmässig gilt für
-Organisationen eine Genehmigungspflicht für fine-grained Token. Bis zur
-Freigabe meldet Home Assistant „keine Leseberechtigung für dieses private
-Repository“.
+Die Organisation kann verlangen, dass ein Organisationsinhaber einen
+Fine-grained Token freigibt, bevor er auf private Organisationsressourcen
+zugreifen darf. Bei aktivierter Genehmigungspflicht bleibt ein neuer Token
+bis zur Freigabe auf öffentliche Ressourcen beschränkt.
+
+Tokens, die ein Organisationsinhaber selbst für seine Organisation erstellt,
+werden von GitHub automatisch genehmigt.
 
 ### Laufzeit
 
