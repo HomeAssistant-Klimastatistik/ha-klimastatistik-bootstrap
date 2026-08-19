@@ -1,0 +1,130 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Täglich, damit ein Bruch früh auffällt.
+    #
+    # Genau gesagt: der Lauf prüft die Mindestversion, die zuletzt
+    # ÜBERNOMMENE Stable-Fassung (fester Pin in
+    # `requirements-ha-stable.txt`) und den Home-Assistant-ENTWICKLUNGSZWEIG.
+    # Nur letzterer wandert von sich aus mit; eine neue Stable-Fassung wird
+    # dadurch NICHT automatisch erkannt, sondern erst mit dem Anheben des
+    # Pins. Der dev-Zweig ist die Früherkennung.
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # Ein neuer Push auf denselben Zweig macht den laufenden Lauf gegenstandslos.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hassfest:
+    name: hassfest
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: HACS
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: HACS-Validierung
+        uses: hacs/action@main
+        with:
+          category: integration
+          # Das Projekt wird bewusst NICHT im offiziellen HACS-Katalog
+          # eingereicht; die Markenprüfung ist deshalb nicht anwendbar.
+          ignore: brands
+
+  # Die Kompatibilitätsmatrix liegt in einem wiederverwendbaren Workflow,
+  # damit sie nur an einer Stelle gepflegt wird und identisch zum privaten
+  # Hauptrepository aufgebaut ist.
+  tests:
+    name: Kompatibilität
+    uses: ./.github/workflows/compat-matrix.yml
+    with:
+      include_dev: true
+
+  secrets:
+    name: Secret-Prüfung
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Statische Secret-Prüfung
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-test.txt -r requirements-ha-minimum.txt
+          pytest -q tests/test_public_safety.py
+      - name: Historie auf Tokenmuster prüfen
+        run: |
+          # `-nP` statt `-nE`: GNU grep lehnt -E und -P gleichzeitig ab
+          # (Exit 2). Das PCRE-Muster mit dem (?!TESTONLY)-Lookahead braucht -P.
+          #
+          # Der Exitcode wird AUSGEWERTET statt als `if`-Bedingung verwendet:
+          # `if ... ; then` deutet JEDEN Nicht-Null-Status als "kein Treffer",
+          # also auch den Fehlerstatus 2. Ein defekter Scan hätte damit Erfolg
+          # gemeldet. Ebenso bewusst KEINE Pipe: die Vorgabeshell ist
+          # `bash -e {0}` ohne `-o pipefail`, ein Fehlschlag von `git log`
+          # wäre sonst unsichtbar.
+          #
+          # Die Trefferzeilen gehen in eine Datei und NICHT in das Protokoll.
+          # Ein Wert aus der Git-Historie ist kein registriertes Secret; der
+          # Runner maskiert ihn nicht. Beim öffentlichen Repository ist das
+          # Protokoll öffentlich lesbar - die Prüfung hätte den Token an einer
+          # zweiten Stelle veröffentlicht, bevor er widerrufen werden kann.
+          # Gemeldet werden deshalb nur Anzahl und Zeilennummern.
+          #
+          # Die Untergrenze 20 entspricht `core/errors.py::redact_secrets`;
+          # ein engerer CI-Scan als die Laufzeitredaktion wäre widersprüchlich.
+          git log -p --all > "$RUNNER_TEMP/history.txt"
+          set +e
+          grep -nP 'github_pat_(?!TESTONLY)[A-Za-z0-9_]{20,}|gh[pousr]_(?!TESTONLY)[A-Za-z0-9]{20,}' \
+            "$RUNNER_TEMP/history.txt" > "$RUNNER_TEMP/hits.txt"
+          STATUS=$?
+          set -e
+          case "$STATUS" in
+            0)
+              echo "::error::Möglicher Tokenwert in der Repository-Historie gefunden: \
+          $(wc -l < "$RUNNER_TEMP/hits.txt") Treffer in den Zeilen \
+          $(cut -d: -f1 "$RUNNER_TEMP/hits.txt" | tr '\n' ' ')von history.txt. \
+          Der Wert wird absichtlich nicht ausgegeben."
+              exit 1
+              ;;
+            1)
+              echo "Keine Tokenmuster in der Historie gefunden."
+              ;;
+            *)
+              echo "::error::Der Historienscan ist fehlgeschlagen (grep-Exitcode $STATUS)."
+              exit 1
+              ;;
+          esac
+
+  lint:
+    name: Ruff
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install ruff
+      - run: ruff check custom_components tests tools
+      - run: ruff format --check custom_components tests tools
