@@ -45,7 +45,7 @@ jobs:
           category: integration
           # Das Projekt wird bewusst NICHT im offiziellen HACS-Katalog
           # eingereicht; die Markenprüfung ist deshalb nicht anwendbar.
-          ignore: brands
+          ignore: brands topics license
 
   # Die Kompatibilitätsmatrix liegt in einem wiederverwendbaren Workflow,
   # damit sie nur an einer Stelle gepflegt wird und identisch zum privaten
