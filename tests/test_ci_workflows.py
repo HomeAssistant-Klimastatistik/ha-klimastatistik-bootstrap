@@ -142,4 +142,8 @@ def test_the_hacs_check_does_not_claim_catalogue_membership() -> None:
     action = [step for step in hacs if str(step.get("uses", "")).startswith("hacs/action")]
     assert len(action) == 1
     assert action[0]["with"]["category"] == "integration"
-    assert action[0]["with"]["ignore"] == "brands"
+    assert set(action[0]["with"]["ignore"].split()) == {
+    "brands",
+    "topics",
+    "license",
+}
