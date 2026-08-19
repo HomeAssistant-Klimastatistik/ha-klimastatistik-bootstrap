@@ -20,7 +20,7 @@ INVALID_TOKEN = "github_pat_TESTONLY0000000000000000000000000invalid"
 NOACCESS_TOKEN = "github_pat_TESTONLY000000000000000000000000noaccess"
 
 OWNER = "HomeAssistant-Klimastatistik"
-REPO = "ha-klimastatistik"
+REPO = "ha-klimastatistik-distribution"
 
 
 @dataclass(slots=True)
