@@ -143,7 +143,7 @@ def test_the_hacs_check_does_not_claim_catalogue_membership() -> None:
     assert len(action) == 1
     assert action[0]["with"]["category"] == "integration"
     assert set(action[0]["with"]["ignore"].split()) == {
-    "brands",
-    "topics",
-    "license",
-}
+        "brands",
+        "topics",
+        "license",
+    }
