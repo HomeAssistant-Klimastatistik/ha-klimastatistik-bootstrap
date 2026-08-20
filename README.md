@@ -13,6 +13,38 @@ Release-Assets und **keine** eingebetteten Zugangsdaten.
 > gültiger GitHub-Token erforderlich. Ohne beides wird nichts heruntergeladen
 > und nichts installiert.
 
+
+## Zugang zu HA Klimastatistik anfordern
+
+HA Klimastatistik wird derzeit privat verteilt.
+
+Der aktuelle Distributionsweg ist für das **Update einer bereits bestehenden
+HA-Klimastatistik-Installation aus der Reihe v2.2.x** vorgesehen.
+
+Eine Neuinstallation wird derzeit bewusst nicht angeboten. Sie wird wieder
+freigegeben, sobald der vollständige Installationsweg ohne zusätzlichen
+manuellen Aufwand möglich ist.
+
+### Zugang anfordern
+
+Für das Update wird zunächst Zugang zur privaten GitHub-Distribution benötigt.
+
+1. Öffne im Bereich **Issues** dieses Repositories ein neues Issue.
+2. Wähle **„Zugang zu HA Klimastatistik anfordern“**.
+3. Fülle das kurze Formular aus und sende die Anfrage ab.
+4. Nach Prüfung erhältst du eine Einladung zur GitHub-Organisation
+   `HomeAssistant-Klimastatistik`.
+5. Nimm diese Organisationseinladung an.
+6. Prüfe anschließend, dass du Zugriff auf das private Repository
+   `ha-klimastatistik-distribution` hast.
+7. Erst danach erstellst du den für das Update benötigten
+   Fine-grained Personal Access Token.
+
+Die Zugangsanfrage ist als GitHub-Issue öffentlich sichtbar.
+
+**Veröffentliche dort niemals Tokens, Passwörter, E-Mail-Adressen oder andere
+vertrauliche Informationen.**
+
 ---
 
 ## Was das Bootstrap tut
