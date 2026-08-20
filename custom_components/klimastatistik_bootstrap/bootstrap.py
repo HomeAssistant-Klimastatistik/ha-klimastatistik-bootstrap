@@ -18,7 +18,7 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 
-from .const import PRODUCT_DOMAIN, STAGING_DIR
+from .const import DOMAIN, PRODUCT_DOMAIN, STAGING_DIR
 from .core.client import ReleaseClient
 from .core.errors import KlimastatistikError, redact_secrets
 from .core.github import ReleaseInfo
@@ -31,6 +31,7 @@ from .core.release_manifest import CHANNEL_STABLE, ReleaseManifest
 from .core.version import meets_minimum
 
 _LOGGER = logging.getLogger(__name__)
+_INSTALL_PROCESS_MARKER_KEY = f"{DOMAIN}_installed_product_this_process"
 
 
 @dataclass(slots=True)
@@ -58,6 +59,22 @@ class InstallOutcome:
             "restart_required": self.restart_required,
             "previous_version": self.previous_version,
         }
+
+
+def product_installed_this_process(
+    hass: HomeAssistant,
+    product_version: str | None = None,
+) -> bool:
+    """Ob der laufende HA-Prozess die private Integration installiert hat.
+
+    Die Markierung liegt ausschliesslich in `hass.data` und überlebt deshalb
+    keinen Home-Assistant-Neustart. Ein Reload des Bootstrap-Config-Entries
+    innerhalb desselben Prozesses lässt sie dagegen bewusst bestehen.
+    """
+    marker = hass.data.get(_INSTALL_PROCESS_MARKER_KEY)
+    if marker is None:
+        return False
+    return product_version is None or marker == product_version
 
 
 async def async_verify_access(client: ReleaseClient) -> str:
@@ -111,6 +128,9 @@ async def async_install(
         return files, previous
 
     files, previous = await hass.async_add_executor_job(_install)
+
+    if manifest.restart_required:
+        hass.data[_INSTALL_PROCESS_MARKER_KEY] = manifest.product_version
 
     _LOGGER.info(
         "Klimastatistik %s wurde installiert (%d Dateien). Ein Neustart ist erforderlich.",
