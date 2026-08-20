@@ -1,0 +1,46 @@
+name: Zugang zu HA Klimastatistik anfordern
+description: Zugang zur privaten Distribution für das Update einer bestehenden Installation anfordern.
+title: "Zugangsanfrage: "
+labels:
+  - access-request
+assignees:
+  - sh-2508
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Zugang zu HA Klimastatistik
+
+        HA Klimastatistik wird derzeit privat verteilt.
+
+        Dieses Formular ist für Nutzer gedacht, die bereits eine bestehende
+        HA-Klimastatistik-Installation aus der Reihe v2.2.x verwenden und
+        Zugang zur privaten Distribution für das Update benötigen.
+
+        Die Anfrage selbst ist öffentlich sichtbar. Bitte hier keine
+        E-Mail-Adressen, Zugangsdaten, Tokens oder andere private Informationen
+        veröffentlichen.
+
+  - type: dropdown
+    id: current_version
+    attributes:
+      label: Aktuell installierte Version
+      description: Welche HA-Klimastatistik-Version verwendest du derzeit?
+      options:
+        - "2.2.2"
+        - "2.2.3"
+        - "Andere Version aus der Reihe 2.2.x"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Bestätigung
+      options:
+        - label: Ich möchte Zugang zur privaten HA-Klimastatistik-Distribution für das Update meiner bestehenden Installation erhalten.
+          required: true
+        - label: Mir ist bekannt, dass diese Zugangsanfrage als öffentliches GitHub-Issue sichtbar ist.
+          required: true
+        - label: Ich werde keine Tokens, Zugangsdaten oder anderen vertraulichen Informationen in diesem Issue veröffentlichen.
+          required: true
