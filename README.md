@@ -7,6 +7,11 @@ Dieses Repository enthält ausschliesslich den technisch notwendigen
 Erstinstallationsweg. Es enthält **keine** Klimaberechnung, **keine** privaten
 Release-Assets und **keine** eingebetteten Zugangsdaten.
 
+**Versionshinweis:** Das Bootstrap besitzt einen eigenen Versionsstrom und wird
+unabhängig von der Version der eigentlichen HA-Klimastatistik-Integration
+versioniert. Ein Bootstrap-Update bedeutet daher nicht automatisch, dass auch
+eine neue Klimastatistik-Version veröffentlicht wurde – und umgekehrt.
+
 > **Wichtig:** Das Installieren dieses Bootstraps gewährt keinen Zugriff auf das
 > private Produkt. Für die Installation der eigentlichen Integration ist eine
 > individuell erteilte Leseberechtigung auf dem privaten Distributionsrepository und ein
