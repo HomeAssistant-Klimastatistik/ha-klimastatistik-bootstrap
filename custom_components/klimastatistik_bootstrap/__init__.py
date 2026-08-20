@@ -23,7 +23,10 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import issue_registry as ir
 
-from .bootstrap import async_installed_product_version
+from .bootstrap import (
+    async_installed_product_version,
+    product_installed_this_process,
+)
 from .const import (
     CONF_TOKEN,
     DATA_HANDOVER_COMPLETE,
@@ -70,6 +73,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     token_present = bool(entry.data.get(CONF_TOKEN))
     handover_done = bool(entry.data.get(DATA_HANDOVER_COMPLETE))
 
+    restart_required = bool(entry.data.get(DATA_RESTART_REQUIRED))
+
+    # Das persistente Neustart-Flag bleibt bei einem blossen Config-Entry-Reload
+    # bestehen. Nach einem echten Home-Assistant-Neustart ist die rein
+    # flüchtige Installationsmarkierung aus `hass.data` dagegen verschwunden.
+    # Liegt die installierte Produktintegration weiterhin auf der Platte, ist
+    # der zuvor verlangte Neustart damit tatsächlich erfolgt.
+    if (
+        restart_required
+        and installed is not None
+        and not product_installed_this_process(hass, installed)
+    ):
+        data = dict(entry.data)
+        data[DATA_RESTART_REQUIRED] = False
+        hass.config_entries.async_update_entry(entry, data=data)
+        restart_required = False
+
     if installed is None:
         # Die private Integration liegt (noch) nicht auf der Platte.
         ir.async_create_issue(
@@ -84,7 +104,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 "version": str(entry.data.get(DATA_INSTALLED_VERSION, "")),
             },
         )
-    elif entry.data.get(DATA_RESTART_REQUIRED) and not product_entries:
+    elif restart_required and not product_entries:
         ir.async_create_issue(
             hass,
             DOMAIN,
