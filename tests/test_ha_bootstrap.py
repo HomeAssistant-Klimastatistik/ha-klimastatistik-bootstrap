@@ -28,7 +28,9 @@ from custom_components.klimastatistik_bootstrap.const import (
     CONF_TOKEN,
     DATA_HANDOVER_COMPLETE,
     DATA_INSTALLED_VERSION,
+    DATA_RESTART_REQUIRED,
     DOMAIN,
+    ISSUE_HANDOVER_PENDING,
     ISSUE_RESTART_REQUIRED,
 )
 from custom_components.klimastatistik_bootstrap.core.release_manifest import (
@@ -172,6 +174,85 @@ async def test_entry_creates_restart_issue(hass: HomeAssistant, isolated_config_
     issue = registry.async_get_issue(DOMAIN, ISSUE_RESTART_REQUIRED)
     assert issue is not None
     assert issue.is_fixable
+
+
+async def test_restart_issue_survives_config_entry_reload_in_same_process(
+    hass: HomeAssistant, isolated_config_dir: Path
+) -> None:
+    """Ein blosses Entry-Reload darf den erforderlichen Neustart nicht quittieren."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_TOKEN: VALID_TOKEN}
+    )
+    await hass.async_block_till_done()
+
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    registry = ir.async_get(hass)
+
+    assert registry.async_get_issue(DOMAIN, ISSUE_RESTART_REQUIRED) is not None
+
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert registry.async_get_issue(DOMAIN, ISSUE_RESTART_REQUIRED) is not None
+
+
+async def test_restart_flag_is_cleared_after_new_process(
+    hass: HomeAssistant, isolated_config_dir: Path
+) -> None:
+    """Nach einem echten Neustart darf das persistente Neustart-Flag verschwinden."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": config_entries.SOURCE_USER}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_TOKEN: VALID_TOKEN}
+    )
+    await hass.async_block_till_done()
+
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+
+    assert entry.data[DATA_RESTART_REQUIRED] is True
+
+    # Einen neuen HA-Prozess simulieren: hass.data ist nach einem echten
+    # Neustart neu und enthält die flüchtige Installationsmarkierung nicht.
+    hass.data.pop(f"{DOMAIN}_installed_product_this_process", None)
+
+    assert await hass.config_entries.async_reload(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert entry.data[DATA_RESTART_REQUIRED] is False
+
+    registry = ir.async_get(hass)
+    assert registry.async_get_issue(DOMAIN, ISSUE_RESTART_REQUIRED) is None
+    assert registry.async_get_issue(DOMAIN, ISSUE_HANDOVER_PENDING) is not None
+
+
+async def test_restart_flag_not_cleared_when_product_is_missing(
+    hass: HomeAssistant, isolated_config_dir: Path
+) -> None:
+    """Ohne installierte Produktintegration darf kein Neustart quittiert werden."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id=DOMAIN,
+        data={
+            CONF_TOKEN: VALID_TOKEN,
+            CONF_OWNER: OWNER,
+            CONF_REPO: REPO,
+            DATA_INSTALLED_VERSION: "2.3.0",
+            DATA_RESTART_REQUIRED: True,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert entry.data[DATA_RESTART_REQUIRED] is True
+
+    registry = ir.async_get(hass)
+    assert registry.async_get_issue(DOMAIN, ISSUE_RESTART_REQUIRED) is not None
 
 
 async def test_diagnostics_contain_no_token(hass: HomeAssistant, isolated_config_dir: Path) -> None:
