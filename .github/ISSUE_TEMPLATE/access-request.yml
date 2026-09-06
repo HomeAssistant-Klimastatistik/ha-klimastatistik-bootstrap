@@ -1,5 +1,5 @@
 name: Zugang zu HA Klimastatistik anfordern
-description: Zugang zur privaten Distribution für das Update einer bestehenden Installation anfordern.
+description: Zugang zur privaten Distribution für eine Neuinstallation oder das Update einer bestehenden Installation anfordern.
 title: "Zugangsanfrage: "
 labels:
   - access-request
@@ -13,20 +13,21 @@ body:
 
         HA Klimastatistik wird derzeit privat verteilt.
 
-        Dieses Formular ist für Nutzer gedacht, die bereits eine bestehende
-        HA-Klimastatistik-Installation aus der Reihe v2.2.x verwenden und
-        Zugang zur privaten Distribution für das Update benötigen.
+        Dieses Formular ist für eine Neuinstallation von HA Klimastatistik 3.x
+        oder für das Update einer bestehenden HA-Klimastatistik-Installation
+        aus der Reihe v2.2.x vorgesehen.
 
         Die Anfrage selbst ist öffentlich sichtbar. Bitte hier keine
         E-Mail-Adressen, Zugangsdaten, Tokens oder andere private Informationen
         veröffentlichen.
 
   - type: dropdown
-    id: current_version
+    id: installation_status
     attributes:
-      label: Aktuell installierte Version
-      description: Welche HA-Klimastatistik-Version verwendest du derzeit?
+      label: Installationsart oder aktuell installierte Version
+      description: Wähle eine Neuinstallation oder die derzeit installierte HA-Klimastatistik-Version aus.
       options:
+        - "Neuinstallation von HA Klimastatistik 3.x (keine vorhandene Installation)"
         - "2.2.2"
         - "2.2.3"
         - "Andere Version aus der Reihe 2.2.x"
@@ -38,7 +39,7 @@ body:
     attributes:
       label: Bestätigung
       options:
-        - label: Ich möchte Zugang zur privaten HA-Klimastatistik-Distribution für das Update meiner bestehenden Installation erhalten.
+        - label: Ich möchte Zugang zur privaten HA-Klimastatistik-Distribution für eine Neuinstallation oder das Update meiner bestehenden Installation erhalten.
           required: true
         - label: Mir ist bekannt, dass diese Zugangsanfrage als öffentliches GitHub-Issue sichtbar ist.
           required: true

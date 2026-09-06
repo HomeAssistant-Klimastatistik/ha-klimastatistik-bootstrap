@@ -24,15 +24,13 @@ eine neue Klimastatistik-Version veröffentlicht wurde – und umgekehrt.
 HA Klimastatistik wird derzeit privat verteilt.
 
 Der aktuelle Distributionsweg ist für das **Update einer bereits bestehenden
-HA-Klimastatistik-Installation aus der Reihe v2.2.x** vorgesehen.
-
-Eine Neuinstallation wird derzeit bewusst nicht angeboten. Sie wird wieder
-freigegeben, sobald der vollständige Installationsweg ohne zusätzlichen
-manuellen Aufwand möglich ist.
+HA-Klimastatistik-Installation aus der Reihe v2.2.x** sowie für eine
+**Neuinstallation von HA Klimastatistik 3.x** vorgesehen.
 
 ### Zugang anfordern
 
-Für das Update wird zunächst Zugang zur privaten GitHub-Distribution benötigt.
+Für das Update oder die Neuinstallation wird zunächst Zugang zur privaten
+GitHub-Distribution benötigt.
 
 1. Öffne im Bereich **Issues** dieses Repositories ein neues Issue.
 2. Wähle **„Zugang zu HA Klimastatistik anfordern“**.
@@ -42,7 +40,7 @@ Für das Update wird zunächst Zugang zur privaten GitHub-Distribution benötigt
 5. Nimm diese Organisationseinladung an.
 6. Prüfe anschließend, dass du Zugriff auf das private Repository
    `ha-klimastatistik-distribution` hast.
-7. Erst danach erstellst du den für das Update benötigten
+7. Erst danach erstellst du den für die Installation benötigten
    Fine-grained Personal Access Token.
 
 Die Zugangsanfrage ist als GitHub-Issue öffentlich sichtbar.
