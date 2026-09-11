@@ -13,7 +13,7 @@ on:
     # Nur letzterer wandert von sich aus mit; eine neue Stable-Fassung wird
     # dadurch NICHT automatisch erkannt, sondern erst mit dem Anheben des
     # Pins. Der dev-Zweig ist die Früherkennung.
-    - cron: "0 4 * * *"
+    - cron: "0 4 12 * *"
   workflow_dispatch:
 
 permissions:
